@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import AuthProvider from "@/components/auth-provider";
 import { authOptions } from "@/server/auth";
 import "@/styles/globals.css";
+import Topbar from "@/components/Topbar";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -19,8 +20,11 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
-      <body>
-        <AuthProvider session={session}>{children}</AuthProvider>
+      <body className="min-h-screen bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
+        <AuthProvider session={session}>
+          <Topbar />
+          <main>{children}</main>
+        </AuthProvider>
       </body>
     </html>
   );
