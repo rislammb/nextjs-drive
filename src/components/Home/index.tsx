@@ -1,7 +1,9 @@
+import UploadFile from "../upload-file";
+
 export default function Home() {
   return (
     <div>
-      <h2 className="text-center text-5xl">Home</h2>
+      <UploadFile />
     </div>
   );
 }

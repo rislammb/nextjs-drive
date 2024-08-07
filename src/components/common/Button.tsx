@@ -1,7 +1,9 @@
+import { type MouseEventHandler } from "react";
+
 interface ButtonProps {
   title: string;
   btnClass?: string;
-  onClick?: () => void;
+  onClick?: MouseEventHandler;
 }
 
 export default function Button({ btnClass, title, onClick }: ButtonProps) {

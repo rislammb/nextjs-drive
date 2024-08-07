@@ -5,7 +5,7 @@ import { getServerSession } from "next-auth";
 import AuthProvider from "@/components/auth-provider";
 import { authOptions } from "@/server/auth";
 import "@/styles/globals.css";
-import Topbar from "@/components/Topbar";
+import Topbar from "@/components/topbar";
 
 export const metadata: Metadata = {
   title: "Next.js Drive",
@@ -23,7 +23,7 @@ export default async function RootLayout({
       <body className="min-h-screen bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
         <AuthProvider session={session}>
           <Topbar />
-          <main>{children}</main>
+          <main className="px-4 py-2">{children}</main>
         </AuthProvider>
       </body>
     </html>
