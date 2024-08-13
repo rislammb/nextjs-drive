@@ -5,7 +5,7 @@ import { getServerSession } from "next-auth";
 import AuthProvider from "@/components/auth-provider";
 import { authOptions } from "@/server/auth";
 import "@/styles/globals.css";
-import Topbar from "../components/topbar";
+import Topbar from "../components/topbar/index";
 
 export const metadata: Metadata = {
   title: "Next.js Drive",
