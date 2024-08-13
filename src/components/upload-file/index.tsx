@@ -1,35 +1,30 @@
 "use client";
 
 import Button from "@/components/common/Button";
-import { type ChangeEvent, useState } from "react";
+import Progress from "../common/progress";
+// import { useState } from "react";
+import { useFormState } from "react-dom";
+import { fileUpload } from "@/lib/actions/fileUpload";
 
 export default function UploadFile() {
-  const [isShowInput, setIsShowInput] = useState<boolean>(false);
-
-  const [file, setFile] = useState("");
-
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    console.log(files);
-  };
-
-  const uploadFile = () => {
-    setIsShowInput(!isShowInput);
-    console.log(file);
-  };
+  const initialState = { message: null, errors: {} };
+  const [state, dispatch] = useFormState(fileUpload, initialState);
+  console.log(state);
 
   return (
-    <div className="flex gap-2">
-      <Button title="Add a File" onClick={uploadFile} btnClass="btn-primary" />
-      {isShowInput && (
-        <input
-          type="file"
-          value={file}
-          onChange={handleChange}
-          className="file-input w-full max-w-xs bg-gray-700"
-        />
-      )}
-      <Button title="Create a Folder" btnClass="btn-info" />
+    <div className="flex flex-col items-center gap-4">
+      <div className="flex flex-col items-center gap-2 sm:flex-row">
+        <form action={dispatch} className="flex gap-2">
+          <input
+            name="file"
+            type="file"
+            className="file-input w-full max-w-xs bg-gray-700"
+          />
+          <Button title="Add a File" type="submit" btnClass="btn-primary" />
+        </form>
+        <Button title="Create a Folder" btnClass="btn-info" />
+      </div>
+      <Progress value={100} />
     </div>
   );
 }

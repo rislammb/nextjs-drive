@@ -8,9 +8,8 @@ await import("./src/env.js");
 const config = {
   images: {
     remotePatterns: [
-      {
-        hostname: "avatars.githubusercontent.com",
-      },
+      { hostname: "avatars.githubusercontent.com" },
+      { hostname: "firebasestorage.googleapis.com" },
     ],
   },
 };

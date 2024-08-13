@@ -3,7 +3,7 @@ import { getStorage } from "firebase/storage";
 import { getFirestore } from "firebase/firestore";
 import { env } from "@/env";
 
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: env.FIREBASE_API_KEY,
   authDomain: "next-drive-daa10.firebaseapp.com",
   projectId: "next-drive-daa10",
