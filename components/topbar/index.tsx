@@ -21,7 +21,11 @@ export default function Topbar() {
           onClick={() => signOut()}
         />
       ) : (
-        <Button title="Sign Up!" onClick={signIn} btnClass="btn-primary" />
+        <Button
+          title="Sign Up!"
+          onClick={() => signIn()}
+          btnClass="btn-primary"
+        />
       )}
     </nav>
   );
