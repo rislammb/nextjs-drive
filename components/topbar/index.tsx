@@ -3,7 +3,7 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 
 import Button from "@/components/common/Button";
-import classes from "./styles.module.scss";
+import classes from "./styles.module.css";
 import Image from "next/image";
 
 export default function Topbar() {

@@ -4,13 +4,15 @@ import { z } from "zod";
 import { storage } from "@/firebaseConfig";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { addFile } from "@/lib/firestore";
+import { revalidatePath } from "next/cache";
+import { truncateMiddleOfLongFileName } from "../utils";
 
 const FormSchema = z.object({
   file: z.instanceof(File),
 });
 
 export type State = {
-  message?: string | null;
+  message?: null | string;
   errors?: {
     file?: string[];
   };
@@ -42,23 +44,36 @@ export async function fileUpload(prevState: State, formData: FormData) {
             const process = Math.round(
               (snapshot.bytesTransferred / snapshot.totalBytes) * 100,
             );
-
-            console.log(process);
+            console.log("process => ", process);
           },
           (error) => {
-            console.log("alert");
-            alert(error);
+            return {
+              message:
+                typeof error === "string" ? error : "Something went wrong!",
+            };
           },
           () => {
             getDownloadURL(uploadTask.snapshot.ref)
               .then(async (downloadUrl) => {
-                await addFile(downloadUrl);
+                await addFile(
+                  downloadUrl,
+                  truncateMiddleOfLongFileName(file.name),
+                  file.type,
+                );
+                revalidatePath("/");
               })
-              .catch((err) => console.log(err));
+              .catch((err) => {
+                return {
+                  message:
+                    typeof err === "string" ? err : "Something went wrong!",
+                };
+              });
           },
         );
       } catch (error) {
-        console.log("Error from error section => ", error);
+        return {
+          message: typeof error === "string" ? error : "Something went wrong!",
+        };
       }
     }
   }

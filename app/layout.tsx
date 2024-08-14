@@ -1,11 +1,11 @@
-import { GeistSans } from "geist/font/sans";
-import { type Metadata } from "next";
+import type { Metadata } from "next";
 import { getServerSession } from "next-auth";
+import { Inter } from "next/font/google";
+import "./globals.css";
 
 import AuthProvider from "@/components/auth-provider";
-import { authOptions } from "@/server/auth";
-import "@/styles/globals.css";
 import Topbar from "@/components/topbar";
+import { authOptions } from "@/server/auth";
 
 export const metadata: Metadata = {
   title: "Next.js Drive",
@@ -13,13 +13,17 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
+const inter = Inter({ subsets: ["latin"] });
+
 export default async function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   const session = await getServerSession(authOptions);
 
   return (
-    <html lang="en" className={`${GeistSans.variable}`}>
+    <html lang="en" className={inter.className}>
       <body className="min-h-screen bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
         <AuthProvider session={session}>
           <Topbar />
