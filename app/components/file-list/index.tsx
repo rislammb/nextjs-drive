@@ -1,6 +1,6 @@
 "use client";
 
-import { type File } from "@/lib/definitions";
+import { type File } from "@/app/lib/definitions";
 import Image from "next/image";
 import { FaRegFilePdf } from "react-icons/fa";
 import { FiFileText, FiImage } from "react-icons/fi";

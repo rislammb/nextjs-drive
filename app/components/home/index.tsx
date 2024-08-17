@@ -1,6 +1,6 @@
-import { getFiles } from "@/lib/firestore";
-import FileList from "@/components/file-list";
-import UploadFile from "@/components/upload-file";
+import { getFiles } from "@/app/lib/firestore";
+import FileList from "@/app/components/file-list";
+import UploadFile from "@/app/components/upload-file";
 
 export default async function Home() {
   const files = await getFiles();

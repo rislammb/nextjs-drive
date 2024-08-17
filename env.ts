@@ -14,7 +14,7 @@ const EnvSchema = z.object({
     process.env.VERCEL ? z.string() : z.string().url()
   ),
   GITHUB_CLIENT_ID: z.string(),
-  GITHUB_CLIENT_SECRET: z.string(),
+  GITHUB_CLIENT_SECRET: z.string({ invalid_type_error: "Client Secret Error" }),
   FIREBASE_API_KEY: z.string(),
   FIREBASE_APP_ID: z.string(),
   FIREBASE_MESSAGING_SENDER_ID: z.string(),
@@ -35,7 +35,7 @@ const getEnv = () => {
   if (validatedFields.success) {
     return validatedFields.data;
   } else {
-    return validatedFields.error.flatten().fieldErrors;
+    throw validatedFields.error.flatten().fieldErrors;
   }
 };
 

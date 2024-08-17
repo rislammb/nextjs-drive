@@ -3,8 +3,8 @@ import { getServerSession } from "next-auth";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
-import AuthProvider from "@/components/auth-provider";
-import Topbar from "@/components/topbar";
+import AuthProvider from "@/app/components/auth-provider";
+import Topbar from "@/app/components/topbar";
 import { authOptions } from "@/server/auth";
 
 export const metadata: Metadata = {
@@ -24,7 +24,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={inter.className}>
-      <body className="min-h-screen bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
+      <body className="min-h-screen">
         <AuthProvider session={session}>
           <Topbar />
           <main className="px-4 py-2">{children}</main>
