@@ -1,48 +1,94 @@
 import { db } from "@/firebaseConfig";
 import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
-import { type File } from "./definitions";
-import { unstable_noStore as noStore } from "next/cache";
+import { DbData, Folder, type File } from "./definitions";
 import { getServerAuthSession } from "@/server/auth";
 
 const files = collection(db, "files");
-
-interface AddFileProps {
-  fileLink: string;
-  fileName: string;
-  fileType: string;
-  userEmail: string;
-}
 
 export async function addFile({
   fileLink,
   fileName,
   fileType,
   userEmail,
-}: AddFileProps): Promise<void> {
+  parentId,
+}: File): Promise<void> {
   try {
-    await addDoc(files, { fileLink, fileName, fileType, userEmail });
+    await addDoc(files, { fileLink, fileName, fileType, userEmail, parentId });
   } catch (error) {
-    console.log("Err ", error);
+    throw error;
   }
 }
 
-export async function getFiles(): Promise<File[]> {
-  noStore();
+export async function addFolder({
+  folderName,
+  isFolder,
+  fileList,
+  userEmail,
+  parentId,
+}: Folder): Promise<void> {
+  try {
+    await addDoc(files, {
+      folderName,
+      isFolder,
+      fileList,
+      userEmail,
+      parentId,
+    });
+  } catch (error) {
+    throw error;
+  }
+}
 
-  const session = await getServerAuthSession();
-  const userEmail = session?.user?.email;
+export async function getDbData(folderId?: string): Promise<DbData> {
+  const fileList: File[] = [];
+  const folderList: Folder[] = [];
 
-  const result = await getDocs(
-    userEmail
-      ? query(files, where("userEmail", "==", userEmail))
-      : query(files, where("userEmail", "==", "undefined"))
-  );
+  try {
+    const session = await getServerAuthSession();
+    const userEmail = session?.user?.email;
 
-  return result.docs.map((doc) => ({
-    fileLink: doc.data().fileLink as string,
-    fileName: doc.data().fileName as string,
-    fileType: doc.data().fileType as string,
-    userEmail: doc.data().userEmail as string,
-    id: doc.id,
-  }));
+    if (userEmail) {
+      const result = await getDocs(
+        userEmail
+          ? folderId
+            ? query(
+                files,
+                where("userEmail", "==", userEmail),
+                where("parentId", "==", folderId)
+              )
+            : query(
+                files,
+                where("userEmail", "==", userEmail),
+                where("parentId", "==", "")
+              )
+          : query(files, where("userEmail", "==", "undefined"))
+      );
+
+      result.docs.forEach((doc) => {
+        if (doc.data().isFolder) {
+          folderList.push({
+            folderName: doc.data().folderName,
+            isFolder: doc.data().isFolder,
+            fileList: doc.data().fileList,
+            userEmail,
+            parentId: folderId as string,
+            id: doc.id,
+          });
+        } else {
+          fileList.push({
+            fileLink: doc.data().fileLink,
+            fileName: doc.data().fileName,
+            fileType: doc.data().fileType,
+            userEmail,
+            parentId: folderId as string,
+            id: doc.id,
+          });
+        }
+      });
+    }
+
+    return { fileList, folderList };
+  } catch (error) {
+    throw error;
+  }
 }

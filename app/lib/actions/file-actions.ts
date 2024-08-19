@@ -5,23 +5,23 @@ import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { revalidatePath } from "next/cache";
 
 import { storage } from "@/firebaseConfig";
-import { addFile } from "@/app/lib/firestore";
+import { addFile, addFolder } from "@/app/lib/firestore";
 import { truncateMiddleOfLongFileName } from "../utils";
 import { getServerAuthSession } from "@/server/auth";
 
-const FormSchema = z.object({
+const FileSchema = z.object({
   file: z.instanceof(File),
 });
 
-export async function fileUpload(formData: FormData) {
-  const validatedFields = FormSchema.safeParse({
+export async function uploadFile(parentId: string, formData: FormData) {
+  const validatedFields = FileSchema.safeParse({
     file: formData.get("file"),
   });
 
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
-      message: "Missing Fields. Failed to Create Invoice.",
+      message: "Missing Fields. Failed to upload file!",
     };
   }
 
@@ -48,12 +48,15 @@ export async function fileUpload(formData: FormData) {
         () => {
           getDownloadURL(uploadTask.snapshot.ref)
             .then(async (downloadUrl) => {
-              await addFile({
+              const payload = {
                 fileLink: downloadUrl,
                 fileName: truncateMiddleOfLongFileName(file.name),
                 fileType: file.type,
                 userEmail,
-              });
+                parentId,
+              };
+
+              await addFile(payload);
             })
             .catch((error) => {
               throw error;
@@ -65,5 +68,46 @@ export async function fileUpload(formData: FormData) {
     throw error;
   }
 
-  revalidatePath("/");
+  revalidatePath(parentId ? "/folder/[id]" : "/", "page");
+}
+
+const FolderSchema = z.object({
+  folderName: z
+    .string()
+    .min(3, "Forder name must be at least three characters long!"),
+});
+
+export async function uploadFolder(parentId: string, formData: FormData) {
+  const validatedFields = FolderSchema.safeParse({
+    folderName: formData.get("folderName"),
+  });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: "Missing Fields. Failed to create folder!",
+    };
+  }
+
+  const { folderName } = validatedFields.data;
+
+  try {
+    const session = await getServerAuthSession();
+    const userEmail = session?.user?.email;
+
+    if (userEmail) {
+      const payload = {
+        folderName,
+        isFolder: true,
+        fileList: [],
+        userEmail,
+        parentId,
+      };
+
+      await addFolder(payload);
+      revalidatePath(parentId ? "/folder/[id]" : "/", "page");
+    }
+  } catch (error) {
+    throw error;
+  }
 }

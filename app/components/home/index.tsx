@@ -1,14 +1,14 @@
-import { getFiles } from "@/app/lib/firestore";
+import { getDbData } from "@/app/lib/firestore";
 import FileList from "@/app/components/file-list";
-import UploadFile from "@/app/components/upload-file";
+import FolderList from "../folder-list";
 
 export default async function Home() {
-  const files = await getFiles();
+  const { fileList, folderList } = await getDbData();
 
   return (
-    <div>
-      <UploadFile />
-      <FileList files={files} />
+    <div className="flex flex-wrap py-4 gap-4">
+      <FileList files={fileList} />
+      <FolderList folders={folderList} />
     </div>
   );
 }

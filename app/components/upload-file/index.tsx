@@ -3,15 +3,20 @@
 import { useSession } from "next-auth/react";
 import Button from "@/app/components/common/Button";
 import Progress from "@/app/components/common/progress";
-import { fileUpload } from "@/app/lib/actions/file-actions";
+import { uploadFile, uploadFolder } from "@/app/lib/actions/file-actions";
+import { useParams } from "next/navigation";
 
 export default function UploadFile() {
   const { data: session } = useSession();
+  const params = useParams<{ id: string }>();
+
+  const bindUploadFile = uploadFile.bind(null, params.id ?? "");
+  const bindUploadFolder = uploadFolder.bind(null, params.id ?? "");
 
   return session?.user ? (
     <div className="flex flex-col items-center gap-4">
-      <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start">
-        <form action={fileUpload} className="flex gap-2">
+      <div className="flex flex-col items-center gap-5 md:flex-row md:items-start">
+        <form action={bindUploadFile} className="flex gap-2">
           <div className="flex flex-col gap-2">
             <input
               name="file"
@@ -19,9 +24,17 @@ export default function UploadFile() {
               className="file-input w-full max-w-xs bg-gray-700"
             />
           </div>
-          <Button title="Add a File" type="submit" btnClass="btn-primary" />
+          <Button title="Upload File" type="submit" btnClass="btn-primary" />
         </form>
-        <Button title="Create a Folder" btnClass="btn-info" />
+        <form action={bindUploadFolder} className="flex gap-2">
+          <input
+            name="folderName"
+            type="text"
+            placeholder="Folder Name..."
+            className="input w-full max-w-xs bg-gray-700"
+          />
+          <Button title="Create Folder" type="submit" btnClass="btn-info" />
+        </form>
       </div>
       <Progress value={100} />
     </div>
