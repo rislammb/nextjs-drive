@@ -1,11 +1,11 @@
 "use client";
 
-import { signIn, signOut, useSession } from "next-auth/react";
-
-import Button from "@/app/components/common/Button";
-import classes from "./styles.module.css";
 import Image from "next/image";
 import Link from "next/link";
+import { signIn, signOut, useSession } from "next-auth/react";
+
+import Button from "@/app/components/common/button";
+import classes from "./styles.module.css";
 
 export default function Topbar() {
   const { data: session } = useSession();

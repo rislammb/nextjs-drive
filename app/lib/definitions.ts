@@ -11,12 +11,12 @@ export type Folder = {
   id?: string;
   folderName: string;
   isFolder: boolean;
-  fileList: object[];
+  files: object[];
   userEmail: string;
   parentId: string;
 };
 
 export type DbData = {
-  fileList: File[];
-  folderList: Folder[];
+  files: File[];
+  folders: Folder[];
 };

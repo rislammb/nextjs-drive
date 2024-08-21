@@ -8,24 +8,38 @@ import { storage } from "@/firebaseConfig";
 import { addFile, addFolder } from "@/app/lib/firestore";
 import { truncateMiddleOfLongFileName } from "../utils";
 import { getServerAuthSession } from "@/server/auth";
+import { redirect } from "next/navigation";
 
 const FileSchema = z.object({
   file: z.instanceof(File),
 });
 
-export async function uploadFile(parentId: string, formData: FormData) {
+export type State = {
+  message?: string | null;
+};
+
+export async function uploadFile(
+  parentId: string,
+  prevState: State,
+  formData: FormData
+) {
   const validatedFields = FileSchema.safeParse({
     file: formData.get("file"),
   });
 
   if (!validatedFields.success) {
     return {
-      errors: validatedFields.error.flatten().fieldErrors,
       message: "Missing Fields. Failed to upload file!",
     };
   }
 
   const { file } = validatedFields.data;
+  if (file.size < 1 || file.name === "undefined") {
+    return {
+      message: "Missing Fields. Failed to upload file!",
+    };
+  }
+
   const storageRef = ref(storage, `files/${file.name}`);
   const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -42,33 +56,37 @@ export async function uploadFile(parentId: string, formData: FormData) {
           );
           console.log("process => ", process);
         },
-        (error) => {
-          throw error;
-        },
         () => {
-          getDownloadURL(uploadTask.snapshot.ref)
-            .then(async (downloadUrl) => {
-              const payload = {
-                fileLink: downloadUrl,
-                fileName: truncateMiddleOfLongFileName(file.name),
-                fileType: file.type,
-                userEmail,
-                parentId,
-              };
+          return {
+            message: "Database Error: Failed to upload file!",
+          };
+        },
+        async () => {
+          const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+          const payload = {
+            fileLink: downloadUrl,
+            fileName: truncateMiddleOfLongFileName(file.name),
+            fileType: file.type,
+            userEmail,
+            parentId,
+          };
 
-              await addFile(payload);
-            })
-            .catch((error) => {
-              throw error;
-            });
+          await addFile(payload);
         }
       );
+    } else {
+      return {
+        message: "User not found: Faild to upload file!",
+      };
     }
   } catch (error) {
-    throw error;
+    return {
+      message: "Database Error: Failed to upload file!",
+    };
   }
 
-  revalidatePath(parentId ? "/folder/[id]" : "/", "page");
+  revalidatePath(parentId ? "/folder/[id]" : "/");
+  redirect(parentId ? `/folder/${parentId}` : "/");
 }
 
 const FolderSchema = z.object({
@@ -77,20 +95,22 @@ const FolderSchema = z.object({
     .min(3, "Forder name must be at least three characters long!"),
 });
 
-export async function uploadFolder(parentId: string, formData: FormData) {
+export async function uploadFolder(
+  parentId: string,
+  prevState: State,
+  formData: FormData
+) {
   const validatedFields = FolderSchema.safeParse({
     folderName: formData.get("folderName"),
   });
 
   if (!validatedFields.success) {
     return {
-      errors: validatedFields.error.flatten().fieldErrors,
       message: "Missing Fields. Failed to create folder!",
     };
   }
 
   const { folderName } = validatedFields.data;
-
   try {
     const session = await getServerAuthSession();
     const userEmail = session?.user?.email;
@@ -99,15 +119,24 @@ export async function uploadFolder(parentId: string, formData: FormData) {
       const payload = {
         folderName,
         isFolder: true,
-        fileList: [],
+        files: [],
         userEmail,
         parentId,
       };
 
       await addFolder(payload);
       revalidatePath(parentId ? "/folder/[id]" : "/", "page");
+    } else {
+      return {
+        message: "User not found: Faild to create folder!",
+      };
     }
   } catch (error) {
-    throw error;
+    return {
+      message: "Database Error: Faild to create folder!",
+    };
   }
+
+  // revalidatePath(parentId ? "/folder/[id]" : "/");
+  redirect(parentId ? `/folder/${parentId}` : "/");
 }

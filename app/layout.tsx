@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import { getServerSession } from "next-auth";
 import { Inter } from "next/font/google";
-import "./globals.css";
 
 import AuthProvider from "@/app/components/auth-provider";
 import Topbar from "@/app/components/topbar";
 import { authOptions } from "@/server/auth";
-import UploadFile from "./components/upload-file";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Next.js Drive",
@@ -28,10 +27,7 @@ export default async function RootLayout({
       <body className="min-h-screen">
         <AuthProvider session={session}>
           <Topbar />
-          <main className="px-4 py-2">
-            <UploadFile />
-            {children}
-          </main>
+          <main className="px-4 py-2">{children}</main>
         </AuthProvider>
       </body>
     </html>
