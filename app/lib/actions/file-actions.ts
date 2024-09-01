@@ -41,39 +41,23 @@ export async function uploadFile(
   }
 
   const storageRef = ref(storage, `files/${file.name}`);
-  const uploadTask = uploadBytesResumable(storageRef, file);
 
   try {
     const session = await getServerAuthSession();
     const userEmail = session?.user?.email;
 
     if (userEmail) {
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const process = Math.round(
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-          );
-          console.log("process => ", process);
-        },
-        () => {
-          return {
-            message: "Database Error: Failed to upload file!",
-          };
-        },
-        async () => {
-          const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-          const payload = {
-            fileLink: downloadUrl,
-            fileName: truncateMiddleOfLongFileName(file.name),
-            fileType: file.type,
-            userEmail,
-            parentId,
-          };
+      await uploadBytesResumable(storageRef, file);
+      const downloadUrl = await getDownloadURL(storageRef);
+      const payload = {
+        fileLink: downloadUrl,
+        fileName: truncateMiddleOfLongFileName(file.name),
+        fileType: file.type,
+        userEmail,
+        parentId,
+      };
 
-          await addFile(payload);
-        }
-      );
+      await addFile(payload);
     } else {
       return {
         message: "User not found: Faild to upload file!",
@@ -86,7 +70,6 @@ export async function uploadFile(
   }
 
   revalidatePath(parentId ? "/folder/[id]" : "/");
-  redirect(parentId ? `/folder/${parentId}` : "/");
 }
 
 const FolderSchema = z.object({
@@ -125,7 +108,6 @@ export async function uploadFolder(
       };
 
       await addFolder(payload);
-      revalidatePath(parentId ? "/folder/[id]" : "/", "page");
     } else {
       return {
         message: "User not found: Faild to create folder!",
@@ -137,6 +119,5 @@ export async function uploadFolder(
     };
   }
 
-  // revalidatePath(parentId ? "/folder/[id]" : "/");
-  redirect(parentId ? `/folder/${parentId}` : "/");
+  revalidatePath(parentId ? "/folder/[id]" : "/");
 }
