@@ -2,12 +2,12 @@
 
 import { useParams } from "next/navigation";
 import Button from "@/app/components/common/button";
-import { State, uploadFolder } from "@/app/lib/actions/file-actions";
+import { uploadFolder } from "@/app/lib/actions/file-actions";
 import { useFormState } from "react-dom";
 
 export default function UploadFolder() {
   const params = useParams<{ id: string }>();
-  const initialState: State = { message: null };
+  const initialState = { message: "" };
 
   const uploadFolderWithParent = uploadFolder.bind(null, params?.id || "");
   const [state, dispatch] = useFormState(uploadFolderWithParent, initialState);

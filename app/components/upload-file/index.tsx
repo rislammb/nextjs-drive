@@ -3,11 +3,11 @@
 import { useFormState } from "react-dom";
 import { useParams } from "next/navigation";
 import Button from "@/app/components/common/button";
-import { State, uploadFile } from "@/app/lib/actions/file-actions";
+import { uploadFile } from "@/app/lib/actions/file-actions";
 
 export default function UploadFile() {
   const params = useParams<{ id: string }>();
-  const initialState: State = { message: null };
+  const initialState = { message: "" };
 
   const uploadFileWithParent = uploadFile.bind(null, params?.id || "");
   const [state, dispatch] = useFormState(uploadFileWithParent, initialState);

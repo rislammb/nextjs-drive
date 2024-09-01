@@ -8,19 +8,14 @@ import { storage } from "@/firebaseConfig";
 import { addFile, addFolder } from "@/app/lib/firestore";
 import { truncateMiddleOfLongFileName } from "../utils";
 import { getServerAuthSession } from "@/server/auth";
-import { redirect } from "next/navigation";
 
 const FileSchema = z.object({
   file: z.instanceof(File),
 });
 
-export type State = {
-  message?: string | null;
-};
-
 export async function uploadFile(
   parentId: string,
-  prevState: State,
+  prevState: any,
   formData: FormData
 ) {
   const validatedFields = FileSchema.safeParse({
@@ -80,7 +75,7 @@ const FolderSchema = z.object({
 
 export async function uploadFolder(
   parentId: string,
-  prevState: State,
+  prevState: any,
   formData: FormData
 ) {
   const validatedFields = FolderSchema.safeParse({
