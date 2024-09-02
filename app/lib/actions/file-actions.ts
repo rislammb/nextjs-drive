@@ -41,6 +41,8 @@ export async function uploadFile(
     const session = await getServerAuthSession();
     const userEmail = session?.user?.email;
 
+    console.log("file type => ", file);
+
     if (userEmail) {
       await uploadBytesResumable(storageRef, file);
       const downloadUrl = await getDownloadURL(storageRef);

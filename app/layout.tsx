@@ -26,7 +26,7 @@ export default async function RootLayout({
       <body className={`${inter.className} min-h-screen`}>
         <AuthProvider session={session}>
           <Topbar />
-          <main className="px-4 py-2">{children}</main>
+          <main className="p-4 flex flex-col gap-4">{children}</main>
         </AuthProvider>
       </body>
     </html>

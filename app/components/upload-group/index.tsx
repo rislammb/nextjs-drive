@@ -1,7 +1,6 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import Progress from "@/app/components/common/progress";
 import UploadFile from "../upload-file";
 import UploadFolder from "../upload-folder";
 
@@ -14,7 +13,7 @@ export default function UploadGroup() {
         <UploadFile />
         <UploadFolder />
       </div>
-      <Progress value={100} />
+      <hr className="w-full border-gray-700" />
     </div>
   ) : (
     <div className="my-6">
