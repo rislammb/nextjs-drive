@@ -7,7 +7,7 @@ import { FiFileText } from "react-icons/fi";
 
 interface FileListProps {
   files: File[];
-  toggleModal: () => void;
+  toggleModal: (file: object) => void;
 }
 
 export default function FileList({ files, toggleModal }: FileListProps) {
@@ -40,7 +40,7 @@ export default function FileList({ files, toggleModal }: FileListProps) {
           <p className="text-center text-xs">{file.fileName}</p>
         </div>
         <button
-          onClick={toggleModal}
+          onClick={() => toggleModal(file)}
           className="absolute z-10 right-1 top-1 btn btn-circle btn-xs btn-info"
         >
           <FaShare />

@@ -1,4 +1,13 @@
-import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  updateDoc,
+  doc,
+  arrayUnion,
+} from "firebase/firestore";
 import { unstable_noStore as noStore } from "next/cache";
 import { db } from "@/firebaseConfig";
 import { DbData, Folder, type File } from "./definitions";
@@ -6,41 +15,17 @@ import { getServerAuthSession } from "@/server/auth";
 
 const filesRef = collection(db, "files");
 
-export async function addFile({
-  fileLink,
-  fileName,
-  fileType,
-  userEmail,
-  parentId,
-}: File): Promise<void> {
+export async function addFile(payload: File): Promise<void> {
   try {
-    await addDoc(filesRef, {
-      fileLink,
-      fileName,
-      fileType,
-      userEmail,
-      parentId,
-    });
+    await addDoc(filesRef, { ...payload });
   } catch (error) {
     throw error;
   }
 }
 
-export async function addFolder({
-  folderName,
-  isFolder,
-  files,
-  userEmail,
-  parentId,
-}: Folder): Promise<void> {
+export async function addFolder(payload: Folder): Promise<void> {
   try {
-    await addDoc(filesRef, {
-      folderName,
-      isFolder,
-      files,
-      userEmail,
-      parentId,
-    });
+    await addDoc(filesRef, { ...payload });
   } catch (error) {
     throw error;
   }
@@ -81,6 +66,7 @@ export async function getDbData(folderId?: string): Promise<DbData> {
             files: doc.data().files,
             userEmail,
             parentId: folderId as string,
+            sharedWith: doc.data().sharedWith,
             id: doc.id,
           });
         } else {
@@ -90,6 +76,7 @@ export async function getDbData(folderId?: string): Promise<DbData> {
             fileType: doc.data().fileType,
             userEmail,
             parentId: folderId as string,
+            sharedWith: doc.data().sharedWith,
             id: doc.id,
           });
         }
@@ -100,4 +87,10 @@ export async function getDbData(folderId?: string): Promise<DbData> {
   } catch (error) {
     throw error;
   }
+}
+
+export async function addsharedWith(email: string, fileId: string) {
+  await updateDoc(doc(db, "files", fileId), {
+    sharedWith: arrayUnion(email),
+  });
 }

@@ -5,7 +5,7 @@ import { FiFolder } from "react-icons/fi";
 
 interface FolderListProps {
   folders: Folder[];
-  toggleModal: () => void;
+  toggleModal: (file: object) => void;
 }
 
 export default function FolderList({ folders, toggleModal }: FolderListProps) {
@@ -24,7 +24,7 @@ export default function FolderList({ folders, toggleModal }: FolderListProps) {
           <p className="text-center text-xs">{folder.folderName}</p>
         </Link>
         <button
-          onClick={toggleModal}
+          onClick={() => toggleModal(folder)}
           className="absolute z-10 right-1 top-1 btn btn-circle btn-xs btn-info"
         >
           <FaShare />

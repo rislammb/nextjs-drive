@@ -5,6 +5,7 @@ export type File = {
   fileType: string;
   userEmail: string;
   parentId: string;
+  sharedWith: string[];
 };
 
 export type Folder = {
@@ -14,6 +15,7 @@ export type Folder = {
   files: object[];
   userEmail: string;
   parentId: string;
+  sharedWith: string[];
 };
 
 export type DbData = {

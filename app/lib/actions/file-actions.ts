@@ -5,7 +5,7 @@ import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { revalidatePath } from "next/cache";
 
 import { storage } from "@/firebaseConfig";
-import { addFile, addFolder } from "@/app/lib/firestore";
+import { addFile, addFolder, addsharedWith } from "@/app/lib/firestore";
 import { truncateMiddleOfLongFileName } from "../utils";
 import { getServerAuthSession } from "@/server/auth";
 
@@ -52,6 +52,7 @@ export async function uploadFile(
         fileType: file.type,
         userEmail,
         parentId,
+        sharedWith: [],
       };
 
       await addFile(payload);
@@ -102,6 +103,7 @@ export async function uploadFolder(
         files: [],
         userEmail,
         parentId,
+        sharedWith: [],
       };
 
       await addFolder(payload);
@@ -117,4 +119,38 @@ export async function uploadFolder(
   }
 
   revalidatePath(parentId ? "/folder/[id]" : "/");
+}
+
+const ShareSchema = z.object({
+  email: z.string().email(),
+});
+
+export async function shareFile(file: any, prevState: any, formData: FormData) {
+  const validatedFields = ShareSchema.safeParse({
+    email: formData.get("email"),
+  });
+
+  if (!validatedFields.success) {
+    return {
+      message: "Field must be an Email!",
+    };
+  }
+
+  const { email } = validatedFields.data;
+  try {
+    const session = await getServerAuthSession();
+    const userEmail = session?.user?.email;
+
+    if (file.userEmail === userEmail) {
+      await addsharedWith(email, file.id);
+      return {
+        isSent: true,
+      };
+    }
+  } catch (error) {
+    return {
+      message: "Database Error: Faild to share!",
+      isSent: false,
+    };
+  }
 }
